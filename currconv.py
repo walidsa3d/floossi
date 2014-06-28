@@ -3,7 +3,7 @@ from sys import argv
 
 script,amount,src,dest=argv
 def getFullName(curr):
-	currencies = csv.reader(open("ISOCurrencyCodes.csv"))
+	currencies = csv.reader(open("currencycodes.csv"))
 	for row in currencies:
 		if row[0].lower()==curr.lower():
 			return row[1]
