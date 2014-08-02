@@ -1,19 +1,41 @@
-import json,requests,csv
+import json
+import requests
+import csv
 from sys import argv
+import pyparsing as p
 
-script,amount,src,dest=argv
-def getFullName(curr):
-	currencies = csv.reader(open("currencycodes.csv"))
-	for row in currencies:
-		if row[0].lower()==curr.lower():
-			return row[1]
+class Currconv:
+	def __init__(self):
+		self.codes="currencycodes.csv"
 
-def convertcurrency():
-	r  = requests.get("http://rate-exchange.appspot.com/currency?from="+src+"&to="+dest)
-	data = json.loads(r.text)
-	exchange=float(amount)*data['rate']
-	result=amount+" "+getFullName(src)+" = "+str(exchange)+" "+getFullName(dest)
-	return result
+	def getFullName(self,curr):
+		currencies = csv.reader(open(self.codes))
+		for row in currencies:
+			if row[0].lower()==curr.lower():
+				return row[1]
 
-print convertcurrency()
+	def convertcurrency(self,amount,src,dest):
+		url="http://rate-exchange.appspot.com/currency?from={0}&to={1}".format(src,dest)
+		r  = requests.get(url)
+		data = json.loads(r.text)
+		exchange=float(amount)*data['rate']
+		print "Rate=",data['rate']
+		result=amount+" "+self.getFullName(src)+" = "+str(exchange)+" "+self.getFullName(dest)
+		return result
+	def parse_args(self,ar):
+		amount=p.Word(p.nums)
+		src=p.Word(p.alphas)
+		dest=p.Word(p.alphas)
+		inn=p.Optional("in").suppress()
+		query=(amount+src+inn+dest)
+		tokens = query.parseString(ar) 
+		return tokens
+	def main(self):
+		args=self.parse_args(" ".join(argv[1:]))
+		print self.convertcurrency(args[0],args[1],args[2])
+
+if __name__ == '__main__':
+	Currconv().main()
+
+
 
