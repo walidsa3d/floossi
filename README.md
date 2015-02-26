@@ -1,4 +1,4 @@
-currconv
+Floossi
 ========
 
 Command-line currency converter
